@@ -11,6 +11,16 @@ import Dashboard from "./pages/Dashboard";
 import Error from "./pages/Error";
 import FindPG from "./pages/FindPG";
 import PGDetails from "./pages/PGDetails";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import BookingPage from "./pages/BookingPage";
+import OwnerDashboard from "./pages/OwnerDashboard";
+import MyBookings from "./pages/MyBookings";
+import SavedPGs from "./pages/SavedPGs";
+import OwnerPGs from "./pages/OwnerPGs";
+import OwnerBookings from "./pages/OwnerBookings";
+import AddNewPG from "./pages/AddNewPG";
+import DashboardLayout from "./components/layouts/DashboardLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
 function App() {
@@ -27,41 +37,37 @@ function App() {
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/search" element={<FindPG />} />
         <Route path="/pg/:id" element={<PGDetails />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/booking" element={<BookingPage />} />
         <Route path="/error" element={<Error />} />
 
-        {/* Protected Routes */}
+        {/* Protected Routes with Dashboard Layout */}
         <Route
-          path="/dashboard"
+          path="/"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardLayout />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/bookings"
-          element={
-            <ProtectedRoute>
-              <div>My Bookings Page (Coming Soon)</div>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/saved"
-          element={
-            <ProtectedRoute>
-              <div>Saved PGs Page (Coming Soon)</div>
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="bookings" element={<MyBookings />} />
+          <Route path="saved" element={<SavedPGs />} />
+          <Route path="owner-dashboard" element={<OwnerDashboard />} />
+          <Route path="owner-properties" element={<OwnerPGs />} />
+          <Route path="owner-bookings" element={<OwnerBookings />} />
+          <Route path="add-new-pg" element={<AddNewPG />} />
+          {/* <Route
+            path="owner-analytics"
+            element={<div>Owner Analytics Page (Coming Soon)</div>}
+          />
+          <Route
+            path="owner-settings"
+            element={<div>Owner Settings Page (Coming Soon)</div>}
+          /> */}
+        </Route>
 
         {/* Catch all route */}
         <Route path="*" element={<Error />} />

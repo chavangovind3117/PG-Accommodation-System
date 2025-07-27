@@ -1,4 +1,5 @@
 import React from "react";
+import TestimonialCard from "./TestimonialCard";
 
 const testimonials = [
   {
@@ -23,24 +24,16 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section className="py-20 bg-white text-center">
-      <h2 className="text-3xl font-semibold mb-6">What Our Users Say</h2>
+    <section className="py-20 bg-gray-50 text-center">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6">
+        What Our Users Say
+      </h2>
+      <p className="mb-12 text-gray-600 text-lg">
+        Hear from our satisfied users who found their perfect accommodation
+      </p>
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-        {testimonials.map((user, index) => (
-          <div key={index} className="bg-gray-50 p-6 rounded shadow text-left">
-            <div className="flex items-center mb-4">
-              <img
-                src={user.image}
-                alt={user.name}
-                className="w-12 h-12 rounded-full mr-4"
-              />
-              <div>
-                <h4 className="font-semibold">{user.name}</h4>
-                <p className="text-yellow-500 text-sm">★★★★★</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-700">“{user.review}”</p>
-          </div>
+        {testimonials.map((testimonial, index) => (
+          <TestimonialCard key={index} testimonial={testimonial} />
         ))}
       </div>
     </section>

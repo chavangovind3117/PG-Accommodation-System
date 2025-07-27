@@ -1,11 +1,9 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ children }) => {
-  // Mock authentication check - replace with actual auth logic
-  // In a real app, this would come from Redux, Context, or localStorage
-  const isAuthenticated =
-    localStorage.getItem("isAuthenticated") === "true" || false;
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const location = useLocation();
 
   if (!isAuthenticated) {

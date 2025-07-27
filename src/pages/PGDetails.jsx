@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/footer";
 
 const PGDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
   const [bookingForm, setBookingForm] = useState({
     roomType: "",
@@ -83,8 +84,26 @@ We maintain strict hygiene standards and provide regular housekeeping services. 
 
   const handleBooking = (e) => {
     e.preventDefault();
-    console.log("Booking submitted:", bookingForm);
-    // Add booking logic here
+
+    // Validate that both room type and move-in date are selected
+    if (!bookingForm.roomType || !bookingForm.moveInDate) {
+      alert("Please select both room type and move-in date");
+      return;
+    }
+
+    // Navigate to booking page with the booking data
+    navigate("/booking", {
+      state: {
+        pgId: id,
+        pgName: pgData.name,
+        pgLocation: pgData.location,
+        pgPrice: pgData.price,
+        pgImage: pgData.images[0],
+        pgRating: pgData.rating,
+        roomType: bookingForm.roomType,
+        moveInDate: bookingForm.moveInDate,
+      },
+    });
   };
 
   const handleInputChange = (e) => {

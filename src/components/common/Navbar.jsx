@@ -1,28 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../features/auth/authSlice";
 import heroIcon from "../../assets/Home/hero-icon.png";
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
 
-  // Mock user authentication state - replace with actual auth logic
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem("isAuthenticated") === "true"
-  );
-  const [user] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-  });
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  // Toggle authentication for testing - remove this in production
-  const toggleAuth = () => {
-    const newAuthState = !isAuthenticated;
-    setIsAuthenticated(newAuthState);
-    localStorage.setItem("isAuthenticated", newAuthState.toString());
-  };
+  // Get authentication state from Redux
+  const { isAuthenticated, user, userRole } = useSelector(
+    (state) => state.auth
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,11 +33,9 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    dispatch(logout());
     setUserDropdownOpen(false);
-    localStorage.removeItem("isAuthenticated");
-    // Add actual logout logic here
-    console.log("User logged out");
+    navigate("/");
   };
 
   const isActiveLink = (path) => {
@@ -110,15 +102,6 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* Test toggle button - remove in production */}
-          <button
-            onClick={toggleAuth}
-            className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded hover:bg-gray-300"
-            title="Toggle auth state for testing"
-          >
-            {isAuthenticated ? "Logout" : "Login"}
-          </button>
-
           {!isAuthenticated ? (
             <>
               <Link
@@ -179,35 +162,15 @@ const Navbar = () => {
                     <p className="text-sm font-medium text-gray-900">
                       {user.name}
                     </p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
                   </div>
                   <Link
-                    to="/dashboard"
+                    to={
+                      userRole === "owner" ? "/owner-dashboard" : "/dashboard"
+                    }
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setUserDropdownOpen(false)}
                   >
                     Dashboard
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setUserDropdownOpen(false)}
-                  >
-                    Profile Settings
-                  </Link>
-                  <Link
-                    to="/bookings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setUserDropdownOpen(false)}
-                  >
-                    My Bookings
-                  </Link>
-                  <Link
-                    to="/saved"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setUserDropdownOpen(false)}
-                  >
-                    Saved PGs
                   </Link>
                   <div className="border-t border-gray-100">
                     <button
@@ -279,32 +242,11 @@ const Navbar = () => {
 
               {/* User Menu Items */}
               <Link
-                to="/dashboard"
+                to={userRole === "owner" ? "/owner-dashboard" : "/dashboard"}
                 className="block py-3 px-4 text-gray-700 hover:bg-gray-50 border-b border-gray-100"
                 onClick={() => setMenuOpen(false)}
               >
                 Dashboard
-              </Link>
-              <Link
-                to="/profile"
-                className="block py-3 px-4 text-gray-700 hover:bg-gray-50 border-b border-gray-100"
-                onClick={() => setMenuOpen(false)}
-              >
-                Profile Settings
-              </Link>
-              <Link
-                to="/bookings"
-                className="block py-3 px-4 text-gray-700 hover:bg-gray-50 border-b border-gray-100"
-                onClick={() => setMenuOpen(false)}
-              >
-                My Bookings
-              </Link>
-              <Link
-                to="/saved"
-                className="block py-3 px-4 text-gray-700 hover:bg-gray-50 border-b border-gray-100"
-                onClick={() => setMenuOpen(false)}
-              >
-                Saved PGs
               </Link>
               <button
                 onClick={() => {

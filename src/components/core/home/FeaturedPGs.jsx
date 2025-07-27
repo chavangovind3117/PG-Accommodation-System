@@ -6,6 +6,7 @@ import greenValley from "../../../assets/Home/green-valley-card.jpg";
 
 const featuredPGs = [
   {
+    id: 1,
     name: "Sunrise PG",
     location: "Koramangala, Bangalore",
     price: "₹12,000",
@@ -13,6 +14,7 @@ const featuredPGs = [
     image: sunrisePG,
   },
   {
+    id: 2,
     name: "Elite Residency",
     location: "Bandra, Mumbai",
     price: "₹15,500",
@@ -20,6 +22,7 @@ const featuredPGs = [
     image: eliteResidency,
   },
   {
+    id: 3,
     name: "Green Valley PG",
     location: "Sector 62, Noida",
     price: "₹9,800",
@@ -30,15 +33,16 @@ const featuredPGs = [
 
 const FeaturedPGs = () => {
   return (
-    <section className="py-20 bg-white text-center">
-      <h2 className="text-3xl font-semibold mb-6">Featured PGs</h2>
-      <p className="mb-12 text-gray-600">
+    <section className="py-20 bg-gray-50 text-center">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6">Featured PGs</h2>
+      <p className="mb-12 text-gray-600 text-lg">
         Discover top-rated paying guest accommodations handpicked for you
       </p>
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-        {featuredPGs.map((pg, index) => (
+        {featuredPGs.map((pg) => (
           <PGCard
-            key={index}
+            key={pg.id}
+            id={pg.id}
             name={pg.name}
             location={pg.location}
             price={pg.price}

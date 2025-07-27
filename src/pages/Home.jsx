@@ -9,7 +9,7 @@ import Navbar from "../components/common/Navbar";
 
 const Home = () => {
   return (
-    <div className="font-sans text-gray-800">
+    <div className="font-sans text-gray-800 bg-gray-50">
       <Navbar />
       <HeroSection />
       <FeaturedPGs />
