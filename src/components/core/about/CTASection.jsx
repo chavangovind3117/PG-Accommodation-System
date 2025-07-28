@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const CTASection = () => {
   const navigate = useNavigate();
   const [activeButton, setActiveButton] = useState(null);
+  const { isAuthenticated, userRole } = useSelector((state) => state.auth);
 
   const handleBrowsePGs = () => {
     setActiveButton("browse");
@@ -12,8 +14,14 @@ const CTASection = () => {
 
   const handleListProperty = () => {
     setActiveButton("list");
-    // Navigate to a property listing page (you can create this later)
-    navigate("/list-property");
+    if (isAuthenticated && userRole === "owner") {
+      navigate("/add-new-pg");
+    } else if (!isAuthenticated) {
+      alert("Please log in as a PG owner to list your property.");
+      navigate("/login");
+    } else {
+      alert("Only PG owners can list a property. Please log in as an owner.");
+    }
   };
 
   return (
