@@ -1,19 +1,14 @@
 import api from "./api";
 
+// Booking endpoints
 export const bookingService = {
-  // Create new booking
-  createBooking: async (bookingData) => {
-    const response = await api.post("/bookings", bookingData);
-    return response.data;
-  },
-
-  // Get all bookings for a user
+  // Get all bookings for current user
   getUserBookings: async () => {
     const response = await api.get("/bookings/user");
     return response.data;
   },
 
-  // Get all bookings for an owner
+  // Get all bookings for PG owner
   getOwnerBookings: async () => {
     const response = await api.get("/bookings/owner");
     return response.data;
@@ -25,15 +20,33 @@ export const bookingService = {
     return response.data;
   },
 
-  // Update booking status
-  updateBookingStatus: async (id, status) => {
-    const response = await api.put(`/bookings/${id}/status`, { status });
+  // Create new booking
+  createBooking: async (bookingData) => {
+    const response = await api.post("/bookings", bookingData);
+    return response.data;
+  },
+
+  // Update booking
+  updateBooking: async (id, bookingData) => {
+    const response = await api.put(`/bookings/${id}`, bookingData);
     return response.data;
   },
 
   // Cancel booking
   cancelBooking: async (id) => {
-    const response = await api.put(`/bookings/${id}/cancel`);
+    const response = await api.patch(`/bookings/${id}/cancel`);
+    return response.data;
+  },
+
+  // Approve booking (for owners)
+  approveBooking: async (id) => {
+    const response = await api.patch(`/bookings/${id}/approve`);
+    return response.data;
+  },
+
+  // Reject booking (for owners)
+  rejectBooking: async (id, reason) => {
+    const response = await api.patch(`/bookings/${id}/reject`, { reason });
     return response.data;
   },
 
@@ -43,30 +56,13 @@ export const bookingService = {
     return response.data;
   },
 
-  // Get upcoming bookings
-  getUpcomingBookings: async () => {
-    const response = await api.get("/bookings/upcoming");
-    return response.data;
-  },
-
-  // Get completed bookings
-  getCompletedBookings: async () => {
-    const response = await api.get("/bookings/completed");
-    return response.data;
-  },
-
-  // Process payment for booking
-  processPayment: async (bookingId, paymentData) => {
-    const response = await api.post(
-      `/bookings/${bookingId}/payment`,
-      paymentData
-    );
-    return response.data;
-  },
-
-  // Get payment history
-  getPaymentHistory: async (bookingId) => {
-    const response = await api.get(`/bookings/${bookingId}/payments`);
+  // Check PG availability
+  checkAvailability: async (pgId, checkInDate, checkOutDate) => {
+    const response = await api.get(`/bookings/availability/${pgId}`, {
+      params: { checkInDate, checkOutDate },
+    });
     return response.data;
   },
 };
+
+export default bookingService;

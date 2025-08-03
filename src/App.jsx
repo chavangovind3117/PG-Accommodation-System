@@ -22,13 +22,14 @@ import OwnerBookings from "./pages/OwnerBookings";
 import AddNewPG from "./pages/AddNewPG";
 import DashboardLayout from "./components/layouts/DashboardLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import RoleBasedRedirect from "./components/common/RoleBasedRedirect";
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -51,6 +52,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<RoleBasedRedirect />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="bookings" element={<MyBookings />} />

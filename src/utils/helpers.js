@@ -44,7 +44,7 @@ export const deepClone = (obj) => {
   if (typeof obj === "object") {
     const clonedObj = {};
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         clonedObj[key] = deepClone(obj[key]);
       }
     }
@@ -241,4 +241,140 @@ export const getInitials = (name) => {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+};
+
+// API Response Helpers
+export const handleApiResponse = (response) => {
+  if (response.ok) {
+    return response.json();
+  }
+  throw new Error(`HTTP error! status: ${response.status}`);
+};
+
+export const handleApiError = (error) => {
+  console.error("API Error:", error);
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  return error.message || "An unexpected error occurred";
+};
+
+// Date Helpers
+export const formatDate = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+export const formatDateTime = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// Price Helpers
+export const formatPrice = (price) => {
+  if (!price) return "₹0";
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+  }).format(price);
+};
+
+// Validation Helpers
+export const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export const validatePassword = (password) => {
+  return password.length >= 6;
+};
+
+export const validatePhone = (phone) => {
+  const phoneRegex = /^[6-9]\d{9}$/;
+  return phoneRegex.test(phone);
+};
+
+// Storage Helpers
+export const getStoredToken = () => {
+  return localStorage.getItem("authToken");
+};
+
+export const setStoredToken = (token) => {
+  localStorage.setItem("authToken", token);
+};
+
+export const removeStoredToken = () => {
+  localStorage.removeItem("authToken");
+};
+
+// Status Helpers
+export const getStatusColor = (status) => {
+  switch (status?.toUpperCase()) {
+    case "ACTIVE":
+    case "APPROVED":
+      return "green";
+    case "PENDING":
+      return "yellow";
+    case "CANCELLED":
+    case "REJECTED":
+      return "red";
+    case "COMPLETED":
+      return "blue";
+    default:
+      return "gray";
+  }
+};
+
+export const getStatusText = (status) => {
+  switch (status?.toUpperCase()) {
+    case "ACTIVE":
+      return "Active";
+    case "PENDING":
+      return "Pending";
+    case "APPROVED":
+      return "Approved";
+    case "CANCELLED":
+      return "Cancelled";
+    case "REJECTED":
+      return "Rejected";
+    case "COMPLETED":
+      return "Completed";
+    default:
+      return status || "Unknown";
+  }
+};
+
+// File Helpers
+export const formatFileSize = (bytes) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+export const validateImageFile = (file) => {
+  const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+
+  if (!validTypes.includes(file.type)) {
+    return "Please select a valid image file (JPEG, PNG, or WebP)";
+  }
+
+  if (file.size > maxSize) {
+    return "Image size should be less than 5MB";
+  }
+
+  return null;
 };

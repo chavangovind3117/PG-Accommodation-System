@@ -35,7 +35,7 @@ const Navbar = () => {
   const handleLogout = () => {
     dispatch(logout());
     setUserDropdownOpen(false);
-    navigate("/");
+    navigate("/home");
   };
 
   const isActiveLink = (path) => {
@@ -43,7 +43,7 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Home", path: "/" },
+    { name: "Home", path: "/home" },
     { name: "Find PG", path: "/search" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
@@ -52,7 +52,7 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow rounded-t-lg px-4 md:px-8 py-3 flex items-center justify-between relative">
       {/* Left: Logo */}
-      <Link to="/" className="flex items-center">
+      <Link to="/home" className="flex items-center">
         <img
           src={heroIcon}
           alt="PGFinder"

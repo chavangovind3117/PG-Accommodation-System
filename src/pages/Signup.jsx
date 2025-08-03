@@ -1,201 +1,420 @@
-import React, { useState } from "react";
-import Navbar from "../components/common/Navbar";
-import Footer from "../components/common/footer";
-import homeIcon from "../assets/Login/home-icon.png";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import { signupUser, clearError } from "../features/auth/authSlice";
 
 const Signup = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    phone: "",
+    occupation: "",
+    role: "user",
   });
+
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Get the role from the form data to determine where to redirect
+      const targetPath =
+        formData.role === "owner" ? "/owner-dashboard" : "/dashboard";
+      navigate(targetPath);
+    }
+  }, [isAuthenticated, navigate, formData.role]);
+
+  // Clear error when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Please enter a valid email";
+    }
+
+    if (!formData.password) {
+      errors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    if (formData.phone && !/^[6-9]\d{9}$/.test(formData.phone)) {
+      errors.phone = "Please enter a valid phone number";
+    }
+
+    if (!formData.occupation.trim()) {
+      errors.occupation = "Occupation is required";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add signup logic here
-    console.log("Signup attempt:", formData);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      await dispatch(
+        signupUser({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          occupation: formData.occupation,
+          role: formData.role.toUpperCase(),
+        })
+      ).unwrap();
+
+      // Show success message and redirect to login
+      alert("Account created successfully! Please login.");
+      navigate("/login");
+    } catch (error) {
+      // Error is already handled by the async thunk
+      console.error("Signup failed:", error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="flex items-center justify-center min-h-screen px-4 py-12">
-        <div className="w-full max-w-md">
-          {/* Branding Section */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <img
-                  src={homeIcon}
-                  alt="PGFinder"
-                  className="w-8 h-8"
-                  style={{ width: 27, height: 29 }}
-                />
-              </div>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Create Account
-            </h1>
-            <p className="text-gray-600">
-              Sign up for a PG accommodation account
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Create your account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Or{" "}
+          <Link
+            to="/login"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
+            sign in to your existing account
+          </Link>
+        </p>
+      </div>
 
-          {/* Signup Form Card */}
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name Field */}
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Name
-                </label>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Full Name
+              </label>
+              <div className="mt-1">
                 <input
-                  type="text"
                   id="name"
                   name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Enter your name"
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                    validationErrors.name ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your full name"
                 />
+                {validationErrors.name && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.name}
+                  </p>
+                )}
               </div>
-              {/* Email Field */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Email Address
-                </label>
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email address
+              </label>
+              <div className="mt-1">
                 <input
-                  type="email"
                   id="email"
                   name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
                   value={formData.email}
                   onChange={handleChange}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                    validationErrors.email
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter your email"
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
                 />
+                {validationErrors.email && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.email}
+                  </p>
+                )}
               </div>
-              {/* Password Field */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Password
-                </label>
+            </div>
+
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone Number (Optional)
+              </label>
+              <div className="mt-1">
                 <input
-                  type="password"
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                    validationErrors.phone
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Enter your phone number"
+                />
+                {validationErrors.phone && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.phone}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="occupation"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Occupation
+              </label>
+              <div className="mt-1">
+                <input
+                  id="occupation"
+                  name="occupation"
+                  type="text"
+                  autoComplete="organization"
+                  required
+                  value={formData.occupation}
+                  onChange={handleChange}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                    validationErrors.occupation
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Enter your occupation"
+                />
+                {validationErrors.occupation && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.occupation}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <div className="mt-1">
+                <input
                   id="password"
                   name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
                   value={formData.password}
                   onChange={handleChange}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                    validationErrors.password
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter your password"
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
                 />
+                {validationErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.password}
+                  </p>
+                )}
               </div>
-              {/* Confirm Password Field */}
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Confirm Password
-                </label>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
+              <div className="mt-1">
                 <input
-                  type="password"
                   id="confirmPassword"
                   name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                    validationErrors.confirmPassword
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Confirm your password"
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
                 />
+                {validationErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.confirmPassword}
+                  </p>
+                )}
               </div>
-              {/* Sign Up Button */}
+            </div>
+
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                I am a
+              </label>
+              <div className="mt-1">
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="user">PG Seeker</option>
+                  <option value="owner">Property Owner</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                disabled={loading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign Up
-              </button>
-            </form>
-            {/* Divider */}
-            <div className="flex items-center my-6">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="mx-4 text-gray-400">Or continue with</span>
-              <div className="flex-grow border-t border-gray-200"></div>
-            </div>
-            {/* Social Buttons */}
-            <div className="flex gap-4">
-              <button className="flex items-center justify-center w-1/2 border border-gray-300 rounded-md py-2 hover:bg-gray-50">
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 48 48">
-                  <g>
-                    <path
-                      fill="#4285F4"
-                      d="M44.5 20H24v8.5h11.7C34.7 32.9 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.6 0 5 .8 7 2.3l6.4-6.4C33.5 5.1 28.9 3 24 3 12.9 3 4 11.9 4 23s8.9 20 20 20c11 0 20-8.9 20-20 0-1.3-.1-2.7-.3-4z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c2.6 0 5 .8 7 2.3l6.4-6.4C33.5 5.1 28.9 3 24 3 15.6 3 8.1 8.6 6.3 14.7z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M24 43c5.8 0 10.7-1.9 14.2-5.1l-6.6-5.4C29.7 34.7 27 35.5 24 35.5c-6.1 0-10.7-4.1-12.4-9.6l-6.6 5.1C8.1 39.4 15.6 45 24 45z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M44.5 20H24v8.5h11.7c-1.2 3.2-4.7 7.5-11.7 7.5-6.6 0-12-5.4-12-12s5.4-12 12-12c2.6 0 5 .8 7 2.3l6.4-6.4C33.5 5.1 28.9 3 24 3 12.9 3 4 11.9 4 23s8.9 20 20 20c11 0 20-8.9 20-20 0-1.3-.1-2.7-.3-4z"
-                    />
-                  </g>
-                </svg>
-                Google
-              </button>
-              <button className="flex items-center justify-center w-1/2 border border-gray-300 rounded-md py-2 hover:bg-gray-50">
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                  <path
-                    fill="#1877F2"
-                    d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0"
-                  />
-                  <path
-                    fill="#FFF"
-                    d="M16.671 24v-9.294h3.128l.467-3.622h-3.595V8.413c0-1.048.293-1.763 1.797-1.763l1.918-.001V3.409C20.463 3.365 19.325 3.266 18 3.266c-2.766 0-4.659 1.688-4.659 4.788v2.13H9.692v3.622h3.649V24h3.33z"
-                  />
-                </svg>
-                Facebook
+                {loading ? "Creating account..." : "Create account"}
               </button>
             </div>
-            {/* Sign In Link */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="text-blue-600 hover:text-blue-500 font-medium"
+          </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div>
+                <a
+                  href="#"
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                  Sign in
-                </Link>
-              </p>
+                  <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </a>
+              </div>
+
+              <div>
+                <a
+                  href="#"
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

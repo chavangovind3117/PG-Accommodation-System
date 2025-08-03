@@ -3,8 +3,12 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const OwnerDashboard = () => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, userRole } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+
+  console.log("OwnerDashboard component rendered");
+  console.log("OwnerDashboard - user:", user);
+  console.log("OwnerDashboard - userRole:", userRole);
 
   const summaryCards = [
     {

@@ -1,9 +1,17 @@
 import api from "./api";
 
+// PG endpoints
 export const pgService = {
   // Get all PGs with optional filters
   getAllPGs: async (filters = {}) => {
-    const response = await api.get("/pgs", { params: filters });
+    const params = new URLSearchParams();
+    Object.keys(filters).forEach((key) => {
+      if (filters[key] !== undefined && filters[key] !== null) {
+        params.append(key, filters[key]);
+      }
+    });
+
+    const response = await api.get(`/pgs?${params.toString()}`);
     return response.data;
   },
 
@@ -19,27 +27,40 @@ export const pgService = {
     return response.data;
   },
 
-  // Update PG (for owners)
+  // Update PG
   updatePG: async (id, pgData) => {
     const response = await api.put(`/pgs/${id}`, pgData);
     return response.data;
   },
 
-  // Delete PG (for owners)
-  deletePG: async (id) => {
-    const response = await api.delete(`/pgs/${id}`);
+  // Partial update PG
+  partialUpdatePG: async (id, pgData) => {
+    const response = await api.patch(`/pgs/${id}`, pgData);
     return response.data;
   },
 
-  // Search PGs with advanced filters
-  searchPGs: async (searchParams) => {
-    const response = await api.get("/pgs/search", { params: searchParams });
+  // Delete PG
+  deletePG: async (id) => {
+    const response = await api.delete(`/pgs/${id}`);
     return response.data;
   },
 
   // Get PGs by owner
   getPGsByOwner: async (ownerId) => {
     const response = await api.get(`/pgs/owner/${ownerId}`);
+    return response.data;
+  },
+
+  // Search PGs
+  searchPGs: async (searchParams) => {
+    const params = new URLSearchParams();
+    Object.keys(searchParams).forEach((key) => {
+      if (searchParams[key] !== undefined && searchParams[key] !== null) {
+        params.append(key, searchParams[key]);
+      }
+    });
+
+    const response = await api.get(`/pgs/search?${params.toString()}`);
     return response.data;
   },
 
@@ -52,7 +73,7 @@ export const pgService = {
   // Upload PG images
   uploadImages: async (pgId, images) => {
     const formData = new FormData();
-    images.forEach((image, index) => {
+    images.forEach((image) => {
       formData.append("images", image);
     });
 
@@ -63,28 +84,6 @@ export const pgService = {
     });
     return response.data;
   },
-
-  // Add review to PG
-  addReview: async (pgId, reviewData) => {
-    const response = await api.post(`/pgs/${pgId}/reviews`, reviewData);
-    return response.data;
-  },
-
-  // Get PG reviews
-  getPGReviews: async (pgId) => {
-    const response = await api.get(`/pgs/${pgId}/reviews`);
-    return response.data;
-  },
-
-  // Toggle PG favorite status
-  toggleFavorite: async (pgId) => {
-    const response = await api.post(`/pgs/${pgId}/favorite`);
-    return response.data;
-  },
-
-  // Get user's favorite PGs
-  getFavoritePGs: async () => {
-    const response = await api.get("/pgs/favorites");
-    return response.data;
-  },
 };
+
+export default pgService;
