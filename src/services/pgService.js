@@ -1,6 +1,20 @@
 import api from "./api";
 import { PG_ENDPOINTS } from "../constants/apiEndpoints";
 
+// Utility function to convert file to base64
+const convertFileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      // Remove the data:image/jpeg;base64, prefix
+      const base64String = reader.result.split(",")[1];
+      resolve(base64String);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 // PG endpoints
 export const pgService = {
   // Get all PGs with optional filters
@@ -26,22 +40,24 @@ export const pgService = {
 
   // Create new PG (for owners)
   createPG: async (pgData, images = []) => {
-    const formData = new FormData();
-
-    // Add PG data as JSON string
-    formData.append("pgData", JSON.stringify(pgData));
-
-    // Add owner ID separately
-    if (pgData.ownerId) {
-      formData.append("ownerId", pgData.ownerId);
+    // Convert images to base64 strings
+    const base64Images = [];
+    for (const image of images) {
+      const base64 = await convertFileToBase64(image);
+      base64Images.push(base64);
     }
 
-    // Add images
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
+    // Extract ownerId from pgData and remove it to avoid duplication
+    const { ownerId, ...pgDataWithoutOwnerId } = pgData;
 
-    const response = await api.post(PG_ENDPOINTS.BASE, formData);
+    // Send everything as a single JSON object
+    const requestData = {
+      pgData: pgDataWithoutOwnerId, // Send pgData without ownerId
+      ownerId: ownerId, // Send ownerId separately
+      images: base64Images,
+    };
+
+    const response = await api.post(PG_ENDPOINTS.BASE, requestData);
     return response.data;
   },
 
@@ -92,12 +108,17 @@ export const pgService = {
 
   // Upload PG images
   uploadImages: async (pgId, images) => {
-    const formData = new FormData();
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
+    // Convert images to base64 strings
+    const base64Images = [];
+    for (const image of images) {
+      const base64 = await convertFileToBase64(image);
+      base64Images.push(base64);
+    }
 
-    const response = await api.post(PG_ENDPOINTS.UPLOAD_IMAGES(pgId), formData);
+    // Send images as JSON array
+    const response = await api.post(PG_ENDPOINTS.UPLOAD_IMAGES(pgId), {
+      images: base64Images,
+    });
     return response.data;
   },
 };

@@ -26,6 +26,7 @@ const AddNewPGTest = () => {
         rating: 0.0,
         reviewCount: 0,
         status: "ACTIVE",
+        ownerId: user?.id, // Include owner ID
       };
 
       console.log("Test PG Data:", testPGData);

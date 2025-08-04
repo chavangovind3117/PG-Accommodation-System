@@ -165,11 +165,13 @@ const AddNewPG = () => {
         rating: 0.0,
         reviewCount: 0,
         status: "ACTIVE",
+        ownerId: user?.id, // Include ownerId in pgData
       };
 
       console.log("Sending PG data:", pgData);
       console.log("User ID:", user?.id);
       console.log("Number of photos:", photos.length);
+      console.log("Full request payload:", { ...pgData, images: photos });
 
       // Dispatch the createPG action
       const result = await dispatch(

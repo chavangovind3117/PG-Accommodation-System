@@ -4,13 +4,13 @@ export const API_BASE_URL =
 
 // Auth endpoints
 export const AUTH_ENDPOINTS = {
-  LOGIN: "/auth/login",
-  REGISTER: "/auth/register",
-  LOGOUT: "/auth/logout",
-  REFRESH_TOKEN: "/auth/refresh",
-  FORGOT_PASSWORD: "/auth/forgot-password",
-  RESET_PASSWORD: "/auth/reset-password",
-  VERIFY_EMAIL: "/auth/verify-email",
+  LOGIN: "/users/login",
+  REGISTER: "/users/register",
+  LOGOUT: "/users/logout",
+  REFRESH_TOKEN: "/users/refresh",
+  FORGOT_PASSWORD: "/users/forgot-password",
+  RESET_PASSWORD: "/users/reset-password",
+  VERIFY_EMAIL: "/users/verify-email",
 };
 
 // PG endpoints

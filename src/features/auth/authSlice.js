@@ -16,7 +16,8 @@ const loadState = () => {
       };
     }
     return JSON.parse(serializedState);
-  } catch (err) {
+  } catch (error) {
+    console.error("Error loading auth state:", error);
     return {
       user: null,
       isAuthenticated: false,
@@ -36,15 +37,26 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authService.login(credentials);
+      console.log("Backend login response:", response);
+
       // Store token separately
-      localStorage.setItem("authToken", response.token);
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
+      }
+
       // Include the requested role in the response
       return {
         ...response,
         requestedRole: credentials.role,
       };
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+      console.error("Login error:", error);
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Login failed"
+      );
     }
   }
 );
@@ -54,11 +66,22 @@ export const signupUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authService.signup(userData);
+      console.log("Backend signup response:", response);
+
       // Store token separately
-      localStorage.setItem("authToken", response.token);
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
+      }
+
       return response;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Signup failed");
+      console.error("Signup error:", error);
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Signup failed"
+      );
     }
   }
 );
@@ -136,17 +159,24 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
-        // Use the requested role from the login form
+
+        // Handle different response structures from backend
+        const response = action.payload;
+        state.user = response.user || response;
+        state.token = response.token || response.jwt;
+
+        // Use the requested role from the login form, or get from user object
         state.userRole =
-          action.payload.requestedRole || action.payload.user.role;
-        state.token = action.payload.token;
+          response.requestedRole ||
+          (response.user && response.user.role) ||
+          response.role;
+
         state.error = null;
 
         console.log("Login successful - User role set to:", state.userRole);
-        console.log("Requested role:", action.payload.requestedRole);
-        console.log("User object from backend:", action.payload.user);
-        console.log("Full action payload:", action.payload);
+        console.log("Requested role:", response.requestedRole);
+        console.log("User object from backend:", state.user);
+        console.log("Full action payload:", response);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -160,13 +190,16 @@ const authSlice = createSlice({
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.userRole = action.payload.user.role;
-        state.token = action.payload.token;
+
+        // Handle different response structures from backend
+        const response = action.payload;
+        state.user = response.user || response;
+        state.token = response.token || response.jwt;
+        state.userRole = (response.user && response.user.role) || response.role;
         state.error = null;
 
         console.log("Signup successful - User role set to:", state.userRole);
-        console.log("Signup response:", action.payload);
+        console.log("Signup response:", response);
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
