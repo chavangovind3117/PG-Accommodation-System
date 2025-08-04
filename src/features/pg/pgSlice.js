@@ -32,9 +32,9 @@ export const fetchPGById = createAsyncThunk(
 
 export const createPG = createAsyncThunk(
   "pg/createPG",
-  async (pgData, { rejectWithValue }) => {
+  async ({ pgData, images }, { rejectWithValue }) => {
     try {
-      const response = await pgService.createPG(pgData);
+      const response = await pgService.createPG(pgData, images);
       return response;
     } catch (error) {
       return rejectWithValue(
