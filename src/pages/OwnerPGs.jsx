@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchAllPGs, clearError } from "../features/pg/pgSlice";
+import { fetchAllPGs, clearError, deletePG } from "../features/pg/pgSlice";
 
 const OwnerPGs = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pgs, loading, error } = useSelector((state) => state.pg);
   const { user } = useSelector((state) => state.auth);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pgToDelete, setPgToDelete] = useState(null);
 
   // Fetch owner's PGs on component mount
   useEffect(() => {
@@ -22,6 +24,46 @@ const OwnerPGs = () => {
       dispatch(clearError());
     };
   }, [dispatch]);
+
+  // Handle view PG details
+  const handleViewPG = (pg) => {
+    // Navigate to details page
+    navigate(`/pg-details/${pg.id}`);
+  };
+
+  // Handle edit PG
+  const handleEditPG = (pg) => {
+    navigate(`/edit-pg/${pg.id}`, { state: { pg } });
+  };
+
+  // Handle delete PG confirmation
+  const handleDeleteClick = (pg) => {
+    setPgToDelete(pg);
+    setShowDeleteModal(true);
+  };
+
+  // Handle delete PG confirmation
+  const handleDeleteConfirm = async () => {
+    if (pgToDelete) {
+      try {
+        await dispatch(deletePG(pgToDelete.id)).unwrap();
+        setShowDeleteModal(false);
+        setPgToDelete(null);
+        // Refresh the list
+        if (user?.id) {
+          dispatch(fetchAllPGs({ ownerId: user.id }));
+        }
+      } catch (error) {
+        console.error("Failed to delete PG:", error);
+      }
+    }
+  };
+
+  // Handle cancel delete
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setPgToDelete(null);
+  };
 
   return (
     <div>
@@ -116,13 +158,22 @@ const OwnerPGs = () => {
                       </span>
                     </td>
                     <td className="py-4 px-4">
-                      <button className="text-blue-600 hover:text-blue-700 font-medium text-sm mr-2">
+                      <button
+                        onClick={() => handleViewPG(pg)}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm mr-2 cursor-pointer"
+                      >
                         View
                       </button>
-                      <button className="text-green-600 hover:text-green-700 font-medium text-sm mr-2">
+                      <button
+                        onClick={() => handleEditPG(pg)}
+                        className="text-green-600 hover:text-green-700 font-medium text-sm mr-2 cursor-pointer"
+                      >
                         Edit
                       </button>
-                      <button className="text-red-600 hover:text-red-700 font-medium text-sm">
+                      <button
+                        onClick={() => handleDeleteClick(pg)}
+                        className="text-red-600 hover:text-red-700 font-medium text-sm cursor-pointer"
+                      >
                         Delete
                       </button>
                     </td>
@@ -133,6 +184,35 @@ const OwnerPGs = () => {
           </table>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirm Delete
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete "{pgToDelete?.name}"? This action
+              cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleDeleteCancel}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

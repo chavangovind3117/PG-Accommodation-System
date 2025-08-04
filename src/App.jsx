@@ -20,6 +20,7 @@ import SavedPGs from "./pages/SavedPGs";
 import OwnerPGs from "./pages/OwnerPGs";
 import OwnerBookings from "./pages/OwnerBookings";
 import AddNewPG from "./pages/AddNewPG";
+import EditPG from "./pages/EditPG";
 import DashboardLayout from "./components/layouts/DashboardLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import RoleBasedRedirect from "./components/common/RoleBasedRedirect";
@@ -37,7 +38,6 @@ function App() {
         <Route path="/verify-email/:token" element={<EmailVerification />} />
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/search" element={<FindPG />} />
-        <Route path="/pg/:id" element={<PGDetails />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/booking" element={<BookingPage />} />
@@ -61,6 +61,8 @@ function App() {
           <Route path="owner-properties" element={<OwnerPGs />} />
           <Route path="owner-bookings" element={<OwnerBookings />} />
           <Route path="add-new-pg" element={<AddNewPG />} />
+          <Route path="edit-pg/:id" element={<EditPG />} />
+          <Route path="pg-details/:id" element={<PGDetails />} />
           {/* <Route
             path="owner-analytics"
             element={<div>Owner Analytics Page (Coming Soon)</div>}

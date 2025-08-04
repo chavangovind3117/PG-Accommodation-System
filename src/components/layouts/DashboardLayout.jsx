@@ -18,7 +18,9 @@ const DashboardLayout = () => {
     location.pathname.startsWith("/search") ||
     location.pathname.startsWith("/add-new-pg") ||
     location.pathname.startsWith("/owner-properties") ||
-    location.pathname.startsWith("/owner-bookings");
+    location.pathname.startsWith("/owner-bookings") ||
+    location.pathname.startsWith("/pg-details") ||
+    location.pathname.startsWith("/edit-pg");
 
   // If not a dashboard route, render without sidebar
   if (!isDashboardRoute) {
