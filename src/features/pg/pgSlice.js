@@ -100,6 +100,20 @@ export const fetchFeaturedPGs = createAsyncThunk(
   }
 );
 
+export const fetchPGsByOwner = createAsyncThunk(
+  "pg/fetchPGsByOwner",
+  async (ownerId, { rejectWithValue }) => {
+    try {
+      const response = await pgService.getPGsByOwner(ownerId);
+      return response;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch PGs by owner"
+      );
+    }
+  }
+);
+
 const initialState = {
   pgs: [],
   featuredPGs: [],
@@ -242,6 +256,20 @@ const pgSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchFeaturedPGs.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch PGs by Owner
+      .addCase(fetchPGsByOwner.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPGsByOwner.fulfilled, (state, action) => {
+        state.loading = false;
+        state.pgs = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchPGsByOwner.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

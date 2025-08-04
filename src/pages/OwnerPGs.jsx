@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchAllPGs, clearError, deletePG } from "../features/pg/pgSlice";
+import { fetchPGsByOwner, clearError, deletePG } from "../features/pg/pgSlice";
 
 const OwnerPGs = () => {
   const dispatch = useDispatch();
@@ -14,7 +14,8 @@ const OwnerPGs = () => {
   // Fetch owner's PGs on component mount
   useEffect(() => {
     if (user?.id) {
-      dispatch(fetchAllPGs({ ownerId: user.id }));
+      // Use the specific endpoint for getting PGs by owner
+      dispatch(fetchPGsByOwner(user.id));
     }
   }, [dispatch, user?.id]);
 
@@ -51,7 +52,7 @@ const OwnerPGs = () => {
         setPgToDelete(null);
         // Refresh the list
         if (user?.id) {
-          dispatch(fetchAllPGs({ ownerId: user.id }));
+          dispatch(fetchPGsByOwner(user.id));
         }
       } catch (error) {
         console.error("Failed to delete PG:", error);

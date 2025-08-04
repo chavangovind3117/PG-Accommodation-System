@@ -5,7 +5,7 @@ export const API_BASE_URL =
 // Auth endpoints
 export const AUTH_ENDPOINTS = {
   LOGIN: "/users/login",
-  REGISTER: "/users/register",
+  REGISTER: "/users/signup",
   LOGOUT: "/users/logout",
   REFRESH_TOKEN: "/users/refresh",
   FORGOT_PASSWORD: "/users/forgot-password",
