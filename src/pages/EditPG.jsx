@@ -136,6 +136,7 @@ const EditPG = () => {
       const updateData = {
         ...form,
         price: parseFloat(form.price),
+        ownerId: user?.id, // Include the owner ID
       };
 
       console.log("Updating PG with data:", updateData);

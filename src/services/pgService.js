@@ -63,12 +63,14 @@ export const pgService = {
 
   // Update PG
   updatePG: async (id, pgData) => {
+    // pgData should already include ownerId from the component
     const response = await api.put(PG_ENDPOINTS.BY_ID(id), pgData);
     return response.data;
   },
 
   // Partial update PG
   partialUpdatePG: async (id, pgData) => {
+    // pgData should already include ownerId from the component
     const response = await api.patch(PG_ENDPOINTS.BY_ID(id), pgData);
     return response.data;
   },
