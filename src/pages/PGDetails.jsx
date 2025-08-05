@@ -8,6 +8,7 @@ const PGDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentPG, loading, error } = useSelector((state) => state.pg);
+  const { userRole } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (id) {
@@ -66,12 +67,21 @@ const PGDetails = () => {
             <p className="text-gray-600">{currentPG.location}</p>
           </div>
           <div className="flex space-x-3">
-            <button
-              onClick={() => navigate(`/edit-pg/${currentPG.id}`)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
-            >
-              Edit PG
-            </button>
+            {userRole?.toLowerCase() === "owner" ? (
+              <button
+                onClick={() => navigate(`/edit-pg/${currentPG.id}`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
+              >
+                Edit PG
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate(`/booking?pgId=${currentPG.id}`)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 cursor-pointer"
+              >
+                Book PG
+              </button>
+            )}
             <button
               onClick={() => navigate(-1)}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer"

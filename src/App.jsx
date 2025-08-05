@@ -23,6 +23,7 @@ import AddNewPG from "./pages/AddNewPG";
 import EditPG from "./pages/EditPG";
 import DashboardLayout from "./components/layouts/DashboardLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import RoleBasedRoute from "./components/common/RoleBasedRoute";
 import RoleBasedRedirect from "./components/common/RoleBasedRedirect";
 
 function App() {
@@ -57,11 +58,46 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="bookings" element={<MyBookings />} />
           <Route path="saved" element={<SavedPGs />} />
-          <Route path="owner-dashboard" element={<OwnerDashboard />} />
-          <Route path="owner-properties" element={<OwnerPGs />} />
-          <Route path="owner-bookings" element={<OwnerBookings />} />
-          <Route path="add-new-pg" element={<AddNewPG />} />
-          <Route path="edit-pg/:id" element={<EditPG />} />
+          <Route
+            path="owner-dashboard"
+            element={
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <OwnerDashboard />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="owner-properties"
+            element={
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <OwnerPGs />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="owner-bookings"
+            element={
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <OwnerBookings />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="add-new-pg"
+            element={
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <AddNewPG />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="edit-pg/:id"
+            element={
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <EditPG />
+              </RoleBasedRoute>
+            }
+          />
           <Route path="pg-details/:id" element={<PGDetails />} />
           {/* <Route
             path="owner-analytics"
