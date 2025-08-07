@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
-import Footer from "../components/common/footer";
+import Footer from "../components/common/Footer";
 
 const BookingPage = () => {
   const location = useLocation();

@@ -24,13 +24,13 @@ import EditPG from "./pages/EditPG";
 import DashboardLayout from "./components/layouts/DashboardLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import RoleBasedRoute from "./components/common/RoleBasedRoute";
-import RoleBasedRedirect from "./components/common/RoleBasedRedirect";
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -46,67 +46,133 @@ function App() {
 
         {/* Protected Routes with Dashboard Layout */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <DashboardLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<RoleBasedRedirect />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="bookings" element={<MyBookings />} />
           <Route path="saved" element={<SavedPGs />} />
-          <Route
-            path="owner-dashboard"
-            element={
-              <RoleBasedRoute allowedRoles={["owner"]}>
-                <OwnerDashboard />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="owner-properties"
-            element={
-              <RoleBasedRoute allowedRoles={["owner"]}>
-                <OwnerPGs />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="owner-bookings"
-            element={
-              <RoleBasedRoute allowedRoles={["owner"]}>
-                <OwnerBookings />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="add-new-pg"
-            element={
-              <RoleBasedRoute allowedRoles={["owner"]}>
-                <AddNewPG />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="edit-pg/:id"
-            element={
-              <RoleBasedRoute allowedRoles={["owner"]}>
-                <EditPG />
-              </RoleBasedRoute>
-            }
-          />
           <Route path="pg-details/:id" element={<PGDetails />} />
-          {/* <Route
-            path="owner-analytics"
-            element={<div>Owner Analytics Page (Coming Soon)</div>}
-          />
-          <Route
-            path="owner-settings"
-            element={<div>Owner Settings Page (Coming Soon)</div>}
-          /> */}
+        </Route>
+
+        {/* Owner-specific protected routes */}
+        <Route
+          path="/owner-dashboard"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <DashboardLayout />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<OwnerDashboard />} />
+          <Route path="properties" element={<OwnerPGs />} />
+          <Route path="bookings" element={<OwnerBookings />} />
+          <Route path="add-new-pg" element={<AddNewPG />} />
+          <Route path="edit-pg/:id" element={<EditPG />} />
+        </Route>
+
+        {/* Additional protected routes for better navigation */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Profile />} />
+        </Route>
+
+        <Route
+          path="/bookings"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<MyBookings />} />
+        </Route>
+
+        <Route
+          path="/saved"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<SavedPGs />} />
+        </Route>
+
+        <Route
+          path="/owner-properties"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <DashboardLayout />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<OwnerPGs />} />
+        </Route>
+
+        <Route
+          path="/owner-bookings"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <DashboardLayout />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<OwnerBookings />} />
+        </Route>
+
+        <Route
+          path="/add-new-pg"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <DashboardLayout />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AddNewPG />} />
+        </Route>
+
+        <Route
+          path="/edit-pg/:id"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={["owner"]}>
+                <DashboardLayout />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<EditPG />} />
+        </Route>
+
+        <Route
+          path="/pg-details/:id"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<PGDetails />} />
         </Route>
 
         {/* Catch all route */}

@@ -4,7 +4,7 @@ import HeroSection from "../components/core/home/HeroSection";
 import FeaturedPGs from "../components/core/home/FeaturedPGs";
 import HowItWorks from "../components/core/home/HowItWorks";
 import Testimonials from "../components/core/home/Testimonials";
-import Footer from "../components/common/footer";
+import Footer from "../components/common/Footer";
 import Navbar from "../components/common/Navbar";
 
 const Home = () => {

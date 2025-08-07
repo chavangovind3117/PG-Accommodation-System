@@ -76,7 +76,20 @@ const PGDetails = () => {
               </button>
             ) : (
               <button
-                onClick={() => navigate(`/booking?pgId=${currentPG.id}`)}
+                onClick={() =>
+                  navigate("/booking", {
+                    state: {
+                      pgId: currentPG.id,
+                      pgName: currentPG.name,
+                      pgLocation: currentPG.location,
+                      pgPrice: currentPG.price,
+                      pgImage: currentPG.images?.[0] || currentPG.image,
+                      pgRating: currentPG.rating || 4.2,
+                      roomType: currentPG.roomType || "single",
+                      moveInDate: null,
+                    },
+                  })
+                }
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 cursor-pointer"
               >
                 Book PG

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const PGCard = ({ id, name, location, price, rating, image }) => {
   return (
-    <Link to={`/pg/${id}`} className="block">
+    <Link to={`/pg-details/${id}`} className="block">
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
         <img src={image} alt={name} className="w-full h-48 object-cover" />
         <div className="p-6 text-left">
